@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Getting Started: Serving Web Content</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="/webjars/jquery/3.1.1/jquery.min.js"></script>
+<!-- Bootstrap core -->
+<link href="webjars/bootstrap/3.3.7-1/css/bootstrap.css" rel="stylesheet" />
+<script src="/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js"></script>
+<script src="/webjars/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+<link href="/webjars/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<!-- Bootbox -->
+<script src="/webjars/bootbox/4.4.0/bootbox.js"></script>
+<!-- jquery-cron core -->
+<script src="/script/cron/jquery-cron-min.js"></script>
+<link href="/script/cron/jquery-cron.css" rel="stylesheet" />
+<!-- prettyCron core -->
+<script src="/webjars/cronstrue/0.8.0/dist/cronstrue.min.js"></script>
+<!-- Custom core -->
+<link href="/CSS/styles.css" rel="stylesheet" />
+<script src="/script/custom/Main.js"></script>
+<script src="/script/custom/Insert_edit_form.js"></script>
+<script src="/script/custom/subscriptions.js"></script>
+
+</head>
+<body>
+		<div class="header">
+				<div class="container">
+						<div class="row">
+								<div class="col-md-5">
+										<!-- Logo -->
+										<div class="logo">
+												<h1>
+														<a>Tableau subscription</a>
+												</h1>
+										</div>
+								</div>
+						</div>
+				</div>
+		</div>
+		<div class="page-content">
+				<div class="row">
+						<div class="col-md-2">
+								<div class="sidebar content-box" style="display: block;">
+										<ul class="nav">
+												<!-- Main menu -->
+												<li class="current">
+														<a href="#newSubscription">
+																<i class="glyphicon glyphicon-pencil"></i>
+																New subscription
+														</a>
+												</li>
+												<li>
+														<a href="#subscriptions">
+																<i class="glyphicon glyphicon-calendar"></i>
+																View subscriptions
+														</a>
+												</li>
+										</ul>
+								</div>
+						</div>
+						<div class="col-md-10">
+								<div class="row">
+										<div class="col-md-12 panel-warning">
+												<div class="content-box-header">
+														<div class="panel-title myContainerTitle">New subscription</div>
+												</div>
+												<div class="content-box-large box-with-header myContainer" id="newSubscriptionScreen">
+														<form id="newSubscriptionForm" action="dashboard/saveDashboard">
+																<div class="form-group">
+																		<label for="nameInput">File Name</label>
+																		<input type="text" class="form-control" id="nameInput" name="subscriptionName" required maxlength="35" pattern="^[a-zA-Z0-9_-]*$">
+																		<span class="help-block">Alphanumeric characters with "-" and "_" allowed </span>
+																</div>
+																<div class="form-group">
+																		<label for="descriptionInput">Description</label>
+																		<input type="text" class="form-control" id="descriptionInput" name="description" required>
+																</div>
+																<div class="form-group">
+																		<label for="emailsInput">Emails</label>
+																		<input type="text" pattern="^(|([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5}){1,25})+([,.](([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5}){1,25})+)*$" class="form-control" id="emailsInput" name="emails">
+																		<span class="help-block">Example: "xyz@gmail.com" or "xyz@gmail.com,abc@gmail.com"</span>
+																</div>
+																<div class="form-group">
+																		<label for="siteInput">Site</label>
+																		<input type="text" class="form-control" id="siteInput" name="site" required>
+																		<span class="help-block">Tableau site id</span>
+																</div>
+																<div class="form-group">
+																		<label for="urlInput">Url</label>
+																		<input type="text" class="form-control" id="urlInput" name="url" required>
+																		<span class="help-block">Dashboard url example: "[workbook]/[sheet]" or "Sales/SalesAnalytics"</span>
+																</div>
+																<label>Add parameters or filters</label>
+																<table class="table table-main-form">
+																		<thead>
+																				<tr>
+																						<th>Name</th>
+																						<th>Value</th>
+																						<th></th>
+																				</tr>
+																		</thead>
+																		<tfoot>
+																				<tr>
+																						<td></td>
+																						<td></td>
+																						<td>
+																								<button class="addRow btn btn-primary">Add</button>
+																						</td>
+																				</tr>
+																		</tfoot>
+																		<tbody>
+																		</tbody>
+																</table>
+																<hr>
+																<label>Schedule time</label>
+																<div id='selector'></div>
+																<div class="form-group">
+																		<input type="hidden" id="cronVal" name="cronVal" class="form-control" required>
+																		<input type="hidden" id="fileNameId" class="form-control">
+																</div>
+																<div class="form-group">
+																		<label for="startScheduleDate">Start date</label>
+																		<div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+																				<input type="text" id="startScheduleDate" name="startScheduleDate" class="form-control" required>
+																				<div class="input-group-addon">
+																						<span class="glyphicon glyphicon-th"></span>
+																				</div>
+																		</div>
+																		<label for="endScheduleDate">End date</label>
+																		<div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+																				<input type="text" id="endScheduleDate" name="endScheduleDate" class="form-control" required>
+																				<div class="input-group-addon">
+																						<span class="glyphicon glyphicon-th"></span>
+																				</div>
+																		</div>
+																</div>
+																<div class="form-group text-center">
+																		<button type="submit" class="generateUrl btn btn-info ">Submit</button>
+																</div>
+														</form>
+												</div>
+												<div class="content-box-large box-with-header myContainer" id="viewDashboardScreen" style="display: none;"></div>
+												<div class="content-box-large box-with-header myContainer" id="viewSubscriptionScreen" style="display: none;"></div>
+										</div>
+								</div>
+						</div>
+				</div>
+		</div>
+		<!-- The Modal -->
+		<div class="modal" id="myAddParamModal">
+				<div class="modal-dialog">
+						<div class="modal-content">
+								<!-- Modal Header -->
+								<div class="modal-header">
+										<h4 class="modal-title">Add Parameter/Filter</h4>
+										<button type="button" class="close" data-dismiss="modal">&times;</button>
+								</div>
+								<!-- Modal body -->
+								<form id="myAddParamForm">
+										<div class="modal-body">
+												<label class="radio-inline">
+														<input type="radio" name="paramRadios" id="paramTextRadios" value="NORMAL" checked>
+														Normal
+												</label>
+												<label class="radio-inline">
+														<input type="radio" name="paramRadios" id="paramDateRadios" value="RANGE">
+														Date range
+												</label>
+												<br>
+												<br>
+												<div id="textParamContainer">
+														<div class="form-group">
+																<label for="modalInputParamName">Name</label>
+																<input type="text" class="form-control" id="modalInputParamName" name="name" required>
+														</div>
+														<div class="form-group">
+																<label for="modalInputParamName">Value</label>
+																<input type="text" class="form-control" id="modalInputParamValue" name="value" required>
+														</div>
+														<br>
+														<span class="help-block">Date parameters: <br>
+														For date parameters, use "yyyy-MM-dd" <br>
+														Example: 2018-12-30
+														</span>
+												</div>
+												<div id="dateParamContainer" style="display: none;">
+														<table width="100%">
+																<tr>
+																		<td>
+																				<label>Name</label>
+																		</td>
+																		<td>
+																				<div class="form-group">
+																						<label for="modalInputParamNameDateEnd">Date start</label>
+																						<input type="text" class="form-control" id="modalInputParamNameDateStart" name="startDate" required>
+																				</div>
+																		</td>
+																		<td>
+																				<div class="form-group">
+																						<label for="modalInputParamNameDateStart">Date end</label>
+																						<input type="text" class="form-control" id="modalInputParamNameDateEnd" name="endDate" required>
+																				</div>
+																		</td>
+																</tr>
+																<tr>
+																		<td>
+																				<label>Value</label>
+																		</td>
+																		<td>
+																				<input type="number" class="form-control" id="modalInputParamValueDateStart" name="startDate" required min="0">
+																				<span class="help-block">Number time before end date</span>
+																		</td>
+																		<td>
+																				<select class="form-control" id="modalInputParamValueDateEnd">
+																						<option value="Current Date">Current Date</option>
+																						<option value="Current Week">Current Week</option>
+																						<option value="Current Month">Current Month</option>
+																						<option value="Current Year">Current Year</option>
+																				</select>
+																				<span class="help-block">Dynamic end date</span>
+																		</td>
+																</tr>
+														</table>
+														<br>
+														<span class="help-block">Add date range parameters: <br>
+														For date range, a "start date" and "end date" parameter is needed
+														</span>
+														<span class="help-block">
+														Example 1: if "start date" = 7 and "end date" = "Current Date", then "start date" and "end date" 
+														will resolve to a date range between "Current Date" and "Current Date - 7 days"
+														</span>
+														<span class="help-block">
+														Example 2: if "start date" = 2 and "end date" = "Current Month", then "start date" and "end date" 
+														will resolve to a date range between "Current Month" and "Current Month - 2 months"
+														</span>
+												</div>
+										</div>
+										<!-- Modal footer -->
+										<div class="modal-footer">
+												<button type="submit" class="addParamButton btn btn-info ">Add</button>
+												<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+										</div>
+								</form>
+						</div>
+				</div>
+		</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+tabcmd login -s {SERVER_URL} -t {SITE_NAME} -u {USERNAME} -p {PASSWORD} --no-certcheck
+
+tabcmd export "{URL}" --no-certcheck --pdf --pagesize unspecified --height 5000 --width 2000 -f "{FILE_NAME}.pdf"
+
+tabcmd logout
