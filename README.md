@@ -1,6 +1,8 @@
 # Tableau-report-scheduler
 A springboot java app to schedule tableau pdf reports
 
+The application needs to be run on the same server as the server tableau server is installed.
+
 1. Java application using Quartz to schedule pdf exports.
 2. Web UI is used to set parameters and filters and a tableau url is then generated.
 3. The generated url is then run at a set schedule where Tabadmin commands saved
