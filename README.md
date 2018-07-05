@@ -25,7 +25,19 @@ tableau.server.password=myPwd
 {SITE_NAME} and {URL} is passed through the UI interface.
 
 In application.properties:
+set path to where config files will be saved and set path to tableu installation directory bin folder
 ```
 dashboard.config.file.path= /path-where-config-files-will-be-saved
 tableau.location.path= /path-to-tableau-bin-folder
+```
+Mail server settings:
+```
+spring.mail.default-encoding=UTF-8
+spring.mail.host=myMail.server.com
+spring.mail.username=myMailUser
+spring.mail.password=myMailPwd
+spring.mail.properties.mail.smtp.port=25
+spring.mail.properties.mail.transport.protocol=smtp
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
 ```
