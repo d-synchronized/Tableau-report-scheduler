@@ -1,3 +1,5 @@
+var selectedRow = null;
+
 //FUNCTION ADD PARAM ROW
 function addParamRow(name, value){
 
@@ -18,7 +20,12 @@ function addParamRow(name, value){
 		$('#'+ nameID).val(name);
 		$('#'+ valueID).val(value);
 	}
+}
 
+//FUNCTION EDIT PARAM ROW
+function editParamRow(name, value){
+	$(selectedRow).closest("tr").find('.name').val(name);
+	$(selectedRow).closest("tr").find('.value').val(value);
 }
 
 //FUNCTION TO REMOVE PARAM ROW
@@ -117,6 +124,7 @@ $(document).ready(function() {
 	// ADD PARAMETER TO FORM
 	$('.addRow').click(function(event) {
 		event.preventDefault();
+		selectedRow = null;
 		$('#myAddParamModal').modal('show');
 		$('#myAddParamForm').trigger("reset");
 		enableDisableAddParamFormFields($('input[type=radio][name=paramRadios]:CHECKED').val());
@@ -150,8 +158,12 @@ $(document).ready(function() {
 			paramName = "[RANGE]:" + $('#modalInputParamNameDateEnd').val()+ ":" +$('#modalInputParamNameDateStart').val();
 			paramValue = $('#modalInputParamValueDateEnd').val()+ ":" + $('#modalInputParamValueDateStart').val(); 
 		}
-
-		addParamRow(paramName, paramValue);
+		if(selectedRow != null){
+			editParamRow(paramName, paramValue);
+		}else{
+			addParamRow(paramName, paramValue);
+		}
+		
 		$('#myAddParamModal').modal('hide');
 
 	});
@@ -170,7 +182,7 @@ $(document).ready(function() {
 	$('#newSubscriptionScreen').on("click", ".editRow", function(event) {
 
 		event.preventDefault();
-
+		selectedRow = this;
 		var name = $(this).closest("tr").find('.name').val();
 		var value = $(this).closest("tr").find('.value').val();
 
