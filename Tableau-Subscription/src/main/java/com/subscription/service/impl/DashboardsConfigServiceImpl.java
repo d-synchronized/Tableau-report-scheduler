@@ -11,11 +11,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
@@ -59,6 +62,8 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
 
   @Value("${dashboard.config.file.path:NONE}")
   private String filePath;
+  @Value("${date.start.week}")
+  private Long startOfWeek;
 
   @Override
   public List<String> getNotTableauParams() {
@@ -152,10 +157,12 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
     // Save params to file
     File dataFile = writeObjectToFile(data);
 
+    // Generate url from params
+    String url = buildUrlFromParams(data);
+
     // Schedule task
     myScheduler.scheduleTask(dataFile.getName(), data.get(SUBSCRIPTION_NAME), data.get(DESCRIPTION),
-        data.get(EMAILS), buildUrlFromParams(data), data.get(CRON_VAL),
-        LocalDate.parse(data.get(START_DATE), formatter),
+        data.get(EMAILS), url, data.get(CRON_VAL), LocalDate.parse(data.get(START_DATE), formatter),
         LocalDate.parse(data.get(END_DATE), formatter));
 
   }
@@ -207,17 +214,25 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
 
   }
 
+
+  /**
+   * Function to generate URL from saved params
+   * 
+   * @param key
+   * @param value
+   * @param builder
+   */
   private void checkIfRangeDateParam(String key, String value, UriComponentsBuilder builder) {
     if (key.contains("[RANGE]:")) {
 
       String[] nameArray = key.split(":");
       String[] valueArray = value.split(":");
 
-      String startDateName = nameArray[1];
-      String endDateName = nameArray[2];
+      String startDateName = nameArray[2];
+      String endDateName = nameArray[1];
 
-      int startDateValue = Integer.parseInt(valueArray[0]);
-      String endDateValue = valueArray[1];
+      int startDateValue = Integer.parseInt(valueArray[1]);
+      String endDateValue = valueArray[0];
 
       LocalDate startDate = LocalDate.now();
       LocalDate endDate = LocalDate.now();
@@ -225,14 +240,48 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
       switch (endDateValue) {
         case "Current Year":
           startDate = endDate.minusYears(startDateValue);
+          // set first day and last day of year
+          startDate = startDate.with(TemporalAdjusters.firstDayOfYear());
+          endDate = endDate.with(TemporalAdjusters.lastDayOfYear());
+          break;
+        case "Current Year - 1":
+          endDate = endDate.minusYears(1L);
+          startDate = endDate.minusYears(startDateValue);
+          // set first day and last day of year
+          startDate = startDate.with(TemporalAdjusters.firstDayOfYear());
+          endDate = endDate.with(TemporalAdjusters.lastDayOfYear());
           break;
         case "Current Month":
           startDate = endDate.minusMonths(startDateValue);
+          // set first day and last day of month
+          startDate = startDate.with(TemporalAdjusters.firstDayOfMonth());
+          endDate = endDate.with(TemporalAdjusters.lastDayOfMonth());
+          break;
+        case "Current Month - 1":
+          endDate = endDate.minusMonths(1L);
+          startDate = endDate.minusMonths(startDateValue);
+          // set first day and last day of month
+          startDate = startDate.with(TemporalAdjusters.firstDayOfMonth());
+          endDate = endDate.with(TemporalAdjusters.lastDayOfMonth());
           break;
         case "Current Week":
           startDate = endDate.minusWeeks(startDateValue);
+          // set first day and last day of week
+          startDate = startDate.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), startOfWeek);
+          endDate = startDate.plusDays(6L);
+          break;
+        case "Current Week - 1":
+          endDate = endDate.minusWeeks(1L);
+          startDate = endDate.minusWeeks(startDateValue);
+          // set first day and last day of month
+          startDate = startDate.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), startOfWeek);
+          endDate = startDate.plusDays(6L);
           break;
         case "Current Date":
+          startDate = endDate.minusDays(startDateValue);
+          break;
+        case "Current Date - 1":
+          endDate = endDate.minusDays(1L);
           startDate = endDate.minusDays(startDateValue);
           break;
         default:
@@ -241,7 +290,6 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
 
       builder.queryParam(startDateName, startDate.format(formatterTableau));
       builder.queryParam(endDateName, endDate.format(formatterTableau));
-
 
     } else {
       builder.queryParam(key, value);
@@ -259,9 +307,12 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
           && value.get(END_DATE) != null && TRUE.equals(value.get(ACTIVATE))) {
 
         try {
+          // Generate url from params
+          String url = buildUrlFromParams(value);
+
           // Schedule task
           myScheduler.scheduleTask(key, value.get(SUBSCRIPTION_NAME), value.get(DESCRIPTION),
-              value.get(EMAILS), buildUrlFromParams(value), value.get(CRON_VAL),
+              value.get(EMAILS), url, value.get(CRON_VAL),
               LocalDate.parse(value.get(START_DATE), formatter),
               LocalDate.parse(value.get(END_DATE), formatter));
 

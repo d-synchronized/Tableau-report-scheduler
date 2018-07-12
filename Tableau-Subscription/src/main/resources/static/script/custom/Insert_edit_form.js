@@ -71,7 +71,7 @@ function submitSubscriptionForm(target){
 
 	//SET FORM VALUES IN myUrlParams OBJECT
 	$.each(formValues, function(_, kv) {
-		if (!kv.name.includes("cron-") ){
+		if (kv.name.indexOf("cron-") == -1){
 			myUrlParams[kv.name] = kv.value;
 		}
 	});
@@ -188,15 +188,15 @@ $(document).ready(function() {
 
 		$('#myAddParamForm').trigger("reset");
 
-		if(name.includes("[RANGE]:")){
+		if(name.indexOf("[RANGE]:") >= 0){
 			$('input[type=radio][name=paramRadios][value=RANGE]').prop('checked',true);
 			enableDisableAddParamFormFields('RANGE');
 
-			var dateStartName = name.split(':')[1];
-			var dateEndName = name.split(':')[2];			
+			var dateStartName = name.split(':')[2];
+			var dateEndName = name.split(':')[1];			
 
-			var dateStartValue = value.split(':')[0];
-			var dateEndValue = value.split(':')[1];			
+			var dateStartValue = value.split(':')[1];
+			var dateEndValue = value.split(':')[0];			
 
 			$('#modalInputParamNameDateEnd').val(dateEndName);
 			$('#modalInputParamNameDateStart').val(dateStartName);

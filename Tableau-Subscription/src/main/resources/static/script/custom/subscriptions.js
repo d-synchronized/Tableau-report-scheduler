@@ -87,7 +87,7 @@ function buildErrorDashboardForList(index, fields){
 //BUILD DASHBOARD ELEMENT FOR DASHBOARDS LIST
 function buildDashboardElementForList(index, obj){
 
-	if(cronstrue.toString(obj['cronVal']).includes('undefined')){
+	if(cronstrue.toString(obj['cronVal']).indexOf('undefined') >= 0){
 		throw "Error: wrong cron value";
 	}
 
