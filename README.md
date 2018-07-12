@@ -43,3 +43,7 @@ spring.mail.properties.mail.transport.protocol=smtp
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 ```
+Option to set Start of week: SUNDAY to SATURDAY[1 to 7]
+```
+date.start.week = 1
+```
