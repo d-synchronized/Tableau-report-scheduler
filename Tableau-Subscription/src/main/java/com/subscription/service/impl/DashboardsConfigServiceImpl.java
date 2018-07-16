@@ -158,7 +158,7 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
     File dataFile = writeObjectToFile(data);
 
     // Generate url from params
-    String url = buildUrlFromParams(data);
+    UriComponentsBuilder url = buildUrlFromParams(data);
 
     // Schedule task
     myScheduler.scheduleTask(dataFile.getName(), data.get(SUBSCRIPTION_NAME), data.get(DESCRIPTION),
@@ -191,7 +191,7 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
   }
 
   @Override
-  public String buildUrlFromParams(Map<String, String> data) {
+  public UriComponentsBuilder buildUrlFromParams(Map<String, String> data) {
 
     String url = data.get(URL);
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
@@ -202,17 +202,10 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
       }
     });
 
-
-    if (ExecuteScriptServiceImpl.OS.indexOf("win") >= 0) {
-
-      return builder.build().toUriString().replaceAll(" ", "%%20");
-
-    } else {
-
-      return builder.build().toUri().toString();
-    }
+    return builder;
 
   }
+
 
 
   /**
@@ -308,7 +301,7 @@ public class DashboardsConfigServiceImpl implements DashboardsConfigService {
 
         try {
           // Generate url from params
-          String url = buildUrlFromParams(value);
+          UriComponentsBuilder url = buildUrlFromParams(value);
 
           // Schedule task
           myScheduler.scheduleTask(key, value.get(SUBSCRIPTION_NAME), value.get(DESCRIPTION),

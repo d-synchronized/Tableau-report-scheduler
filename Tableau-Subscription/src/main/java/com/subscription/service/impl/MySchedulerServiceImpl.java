@@ -3,6 +3,7 @@ package com.subscription.service.impl;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.stream.Collectors;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.subscription.service.MySchedulerService;
 import com.subscription.service.task.TaskExport;
 import com.subscription.util.ScheduleJob;
@@ -26,8 +28,8 @@ public class MySchedulerServiceImpl implements MySchedulerService {
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Override
-  public void scheduleTask(String key, String name, String description, String emails, String url,
-      String cron, LocalDate dateStart, LocalDate dateEnd) {
+  public void scheduleTask(String key, String name, String description, String emails,
+      UriComponentsBuilder url, String cron, LocalDate dateStart, LocalDate dateEnd) {
 
     Date startDate = Date.from(dateStart.atStartOfDay(ZoneId.systemDefault()).toInstant());
     Date endDate = Date.from(dateEnd.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -40,9 +42,10 @@ public class MySchedulerServiceImpl implements MySchedulerService {
     // get job data map to use as parameters. we can pass any type of values to the task through the
     // JobDataMap
     JobDataMap jdm = jobDetail.getJobDataMap();
-    jdm.put("url", url);
-    jdm.put("name", name);
-    jdm.put("description", description);
+
+    jdm.put("url", getUrlString(url));
+    jdm.put("name", name + getDateDescription(url, "_", "_", ""));
+    jdm.put("description", description + getDateDescription(url, " and ", " ", ""));
     jdm.put("emails", emails);
 
     // Schedule task
@@ -52,6 +55,40 @@ public class MySchedulerServiceImpl implements MySchedulerService {
       log.error("scheduleTask:", e);
     }
 
+  }
+
+
+  /**
+   * Get date values from parameters containing date and string Generate string
+   * 
+   * @param url
+   * @param delimiter
+   * @param prefix
+   * @param suffix
+   * @return
+   */
+  private String getDateDescription(UriComponentsBuilder url, String delimiter, String prefix,
+      String suffix) {
+    return url.build().getQueryParams().entrySet().stream()
+        .filter(map -> map.getKey().toUpperCase().contains("date".toUpperCase()))
+        .map(map -> map.getValue().get(0)).collect(Collectors.joining(delimiter, prefix, suffix));
+  }
+
+  /**
+   * Function to convert UriComponentsBuilder to string based on Operating system
+   * 
+   * @param builder
+   * @return
+   */
+  private String getUrlString(UriComponentsBuilder builder) {
+    if (ExecuteScriptServiceImpl.OS.indexOf("win") >= 0) {
+
+      return builder.build().toUriString().replaceAll(" ", "%%20");
+
+    } else {
+
+      return builder.build().toUri().toString();
+    }
   }
 
   @Override

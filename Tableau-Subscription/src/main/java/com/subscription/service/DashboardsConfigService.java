@@ -3,6 +3,7 @@ package com.subscription.service;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public interface DashboardsConfigService {
 
@@ -20,7 +21,7 @@ public interface DashboardsConfigService {
 
   void initAllDashboardSchedules();
 
-  String buildUrlFromParams(Map<String, String> data);
+  UriComponentsBuilder buildUrlFromParams(Map<String, String> data);
 
   List<String> getNotTableauParams();
 
